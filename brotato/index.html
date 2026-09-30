@@ -37,6 +37,7 @@ main{padding:16px;max-width:1400px;margin:0 auto}
 .badge.r1{color:var(--r1);border-color:var(--r1)} .badge.r2{color:var(--r2);border-color:var(--r2)}
 .badge.r3{color:var(--r3);border-color:var(--r3)} .badge.r4{color:var(--r4);border-color:var(--r4)}
 .badge.gray{color:var(--dim);border-color:var(--dim)}
+.badge.unlock{color:#f0c05a;border-color:#f0c05a;background:rgba(240,192,90,.08)}
 .badge.dlc{color:#7fd4ff;border-color:#7fd4ff;background:rgba(60,140,200,.12)}
 .card.isdlc{border-left:3px solid #4fb3e8;background:linear-gradient(90deg,rgba(79,179,232,.07),transparent 40%)}
 /* modal */
@@ -93,6 +94,7 @@ footer{padding:20px 16px;color:var(--dim);font-size:12px;text-align:center;borde
   <input id="search" placeholder="搜索中文 / 英文名称…" autocomplete="off">
   <select id="filter"></select>
   <select id="dlcsel"><option value="all">本体+DLC</option><option value="dlc">只看 DLC</option><option value="base">只看本体</option></select>
+  <select id="unlocksel"><option value="all">全部来源</option><option value="default">默认解锁</option><option value="unlock">成就解锁</option></select>
 </div>
 <main id="main"></main>
 <div id="overlay"><div id="modal"></div></div>
@@ -173,6 +175,7 @@ function render(){
   document.getElementById('search').style.display = isDLC ? 'none' : '';
   document.getElementById('filter').style.display = isDLC ? 'none' : '';
   document.getElementById('dlcsel').style.display = (isDLC || curTab === 'stats') ? 'none' : '';
+  document.getElementById('unlocksel').style.display = (curTab === 'items' || curTab === 'weapons') ? '' : 'none';
   const sel = document.getElementById('filter');
   const prev = sel.value;
   sel.innerHTML = filterOptions().map(([v,l]) => `<option value="${v}">${l}</option>`).join('');
@@ -192,7 +195,13 @@ function renderList(){
     if (!matchSearch(x, q)) return false;
     if (dlcf === 'dlc' && !x.dlc) return false;
     if (dlcf === 'base' && x.dlc) return false;
-    if (curTab === 'items' || curTab === 'weapons') return f === '0' || x.rarity === +f;
+    if (curTab === 'items' || curTab === 'weapons'){
+      const isDef = !x.unlockedby || x.unlockedby === '默认解锁';
+      const uf = document.getElementById('unlocksel').value;
+      if (uf === 'default' && !isDef) return false;
+      if (uf === 'unlock' && isDef) return false;
+      return f === '0' || x.rarity === +f;
+    }
     if (curTab === 'characters'){
       const def = !!x.defaultUnlock;
       return f === 'all' || (f === 'default' ? def : !def);
@@ -206,8 +215,8 @@ function renderList(){
     const c = document.createElement('div');
     c.className = 'card' + (x.rarity ? ' r' + x.rarity : '') + (x.dlc ? ' isdlc' : '');
     let sub = '';
-    if (curTab === 'items') sub = rarityBadge(x.rarity);
-    if (curTab === 'weapons') sub = rarityBadge(x.rarity) + (x.types?.length ? `<div class="en">${esc(x.types.join(' / '))}</div>` : '');
+    if (curTab === 'items') sub = rarityBadge(x.rarity) + (x.unlockedby ? ' <span class="badge unlock">成就解锁</span>' : '');
+    if (curTab === 'weapons') sub = rarityBadge(x.rarity) + (x.unlockedby && x.unlockedby !== '默认解锁' ? ' <span class="badge unlock">成就解锁</span>' : '') + (x.types?.length ? `<div class="en">${esc(x.types.join(' / '))}</div>` : '');
     if (curTab === 'enemies') sub = `<span class="badge gray">${{enemy:'敌人',elite:'精英',boss:'首领'}[x.category]||x.category}</span>`;
     if (curTab === 'characters') sub = x.defaultUnlock ? '<span class="badge gray">默认解锁</span>' : '';
     sub += dlcBadge(x);
@@ -327,6 +336,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal()
 document.getElementById('search').addEventListener('input', renderList);
 document.getElementById('filter').addEventListener('change', renderList);
 document.getElementById('dlcsel').addEventListener('change', renderList);
+document.getElementById('unlocksel').addEventListener('change', renderList);
 render();
 </script>
 </body>
