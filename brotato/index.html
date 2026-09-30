@@ -38,6 +38,7 @@ main{padding:16px;max-width:1400px;margin:0 auto}
 .badge.r3{color:var(--r3);border-color:var(--r3)} .badge.r4{color:var(--r4);border-color:var(--r4)}
 .badge.gray{color:var(--dim);border-color:var(--dim)}
 .badge.dlc{color:#7fd4ff;border-color:#7fd4ff;background:rgba(60,140,200,.12)}
+.card.isdlc{border-left:3px solid #4fb3e8;background:linear-gradient(90deg,rgba(79,179,232,.07),transparent 40%)}
 /* modal */
 #overlay{position:fixed;inset:0;background:rgba(0,0,0,.65);display:none;z-index:100;padding:20px;overflow-y:auto}
 #overlay.open{display:flex;align-items:flex-start;justify-content:center}
@@ -117,7 +118,7 @@ for (const lst of [DATA.items, DATA.weapons, DATA.characters, DATA.enemies])
     if (x.icon) { ICON_BY_NAME[x.name.toLowerCase()] = x.icon; if (x.zh) ICON_BY_NAME[x.zh] = x.icon; }
     if (x.zh) NAME_ZH[x.name.toLowerCase()] = x.zh;
   }
-function dlcBadge(x){ return x.dlc ? '<span class="badge dlc">DLC</span>' : ''; }
+function dlcBadge(x){ return x.dlc ? '<span class="badge dlc">🌊 深海魔怪</span>' : ''; }
 
 function si(html){
   if (!html) return '';
@@ -203,7 +204,7 @@ function renderList(){
   const grid = document.createElement('div'); grid.className = 'grid';
   lst.forEach(x => {
     const c = document.createElement('div');
-    c.className = 'card' + (x.rarity ? ' r' + x.rarity : '');
+    c.className = 'card' + (x.rarity ? ' r' + x.rarity : '') + (x.dlc ? ' isdlc' : '');
     let sub = '';
     if (curTab === 'items') sub = rarityBadge(x.rarity);
     if (curTab === 'weapons') sub = rarityBadge(x.rarity) + (x.types?.length ? `<div class="en">${esc(x.types.join(' / '))}</div>` : '');
@@ -313,7 +314,7 @@ function openModal(x){
           ${g('宝箱掉率', x.crateDrop)}${g('首次出现', x.firstWave)}</div>`);
   }
   m.innerHTML = `<button class="close">✕</button>
-    <div class="mhead">${iconHtml(x, true)}<div><h2>${esc(x.zh || x.name)}</h2><div class="men">${esc(x.name)}</div>
+    <div class="mhead">${iconHtml(x, true)}<div><h2>${esc(x.zh || x.name)} ${dlcBadge(x)}</h2>
     ${x.rarity ? rarityBadge(x.rarity) : ''} ${dlcBadge(x)}</div></div>${body}`;
   m.querySelector('.close').onclick = closeModal;
   overlay.classList.add('open');
