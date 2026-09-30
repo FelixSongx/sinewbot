@@ -68,6 +68,15 @@ table.tiers th{background:var(--bg3)}
 .statrow p{margin-top:4px}
 .statrow .meta{color:var(--dim);font-size:12px;margin-top:4px}
 .statrow .meta b{color:var(--fg)}
+.dlc{max-width:780px}
+.dlc .hero-card{background:linear-gradient(135deg,#10314e,#0b1f33);border:1px solid #2c4f6e;border-radius:10px;padding:20px;margin-bottom:14px}
+.dlc h2{margin:0 0 6px;font-size:20px;color:#7fd4ff}
+.dlc .sub{color:var(--dim);font-size:13px;margin-bottom:10px}
+.dlc .fact{display:inline-block;background:rgba(127,212,255,.08);border:1px solid #2c4f6e;border-radius:6px;padding:3px 10px;margin:3px 6px 0 0;font-size:13px}
+.dlc h3{font-size:15px;margin:18px 0 8px;color:#7fd4ff}
+.dlc ul{margin-left:20px;line-height:1.9}
+.dlc p{line-height:1.9;margin-bottom:6px}
+.dlc .note{color:var(--dim);font-size:13px;background:var(--bg2);border:1px solid #2c3340;border-radius:8px;padding:10px 14px;margin-top:16px}
 footer{padding:20px 16px;color:var(--dim);font-size:12px;text-align:center;border-top:1px solid #2c3340;line-height:1.8}
 .empty{color:var(--dim);text-align:center;padding:40px;grid-column:1/-1}
 @media (max-width:560px){ .grid{grid-template-columns:repeat(auto-fill,minmax(110px,1fr))} #modal{padding:14px} }
@@ -86,7 +95,7 @@ footer{padding:20px 16px;color:var(--dim);font-size:12px;text-align:center;borde
 <div id="overlay"><div id="modal"></div></div>
 <footer>
   数据来源：哔哩哔哩 BWIKI · <span style="color:#8b94a3">wiki.biligame.com/brotato</span><br>
-  数据版本约为游戏 Patch 0.8，不含 DLC《深海魔怪》内容。部分图标与译名在 BWIKI 缺失，以文字占位或参考译名代替。<br>
+  数据版本约为游戏 Patch 0.8；DLC《深海魔怪》内容概览见「深海魔怪」页，其条目数值暂未收录。部分图标与译名在 BWIKI 缺失，以文字占位或参考译名代替。<br>
   本页面仅供学习交流，游戏内容版权归 Blobfish 所有。
 </footer>
 <script>
@@ -94,7 +103,7 @@ const DATA = {"items":[{"id":"acid","name":"Acid","zh":"酸液","rarity":2,"stat
 
 const RARITY = {1:['普通','r1'],2:['罕见','r2'],3:['稀有','r3'],4:['传奇','r4']};
 const TABS = [
-  ['items','物品'],['characters','角色'],['weapons','武器'],['enemies','敌人'],['stats','属性']
+  ['items','物品'],['characters','角色'],['weapons','武器'],['enemies','敌人'],['stats','属性'],['dlc','深海魔怪']
 ];
 let curTab = 'items';
 
@@ -126,7 +135,7 @@ const tabsEl = document.getElementById('tabs');
 TABS.forEach(([id, label]) => {
   const b = document.createElement('button');
   b.className = 'tab'; b.dataset.tab = id;
-  b.innerHTML = `${label}<span class="cnt">${DATA[id].length}</span>`;
+  b.innerHTML = label + (DATA[id] ? `<span class="cnt">${DATA[id].length}</span>` : '');
   b.onclick = () => { curTab = id; document.getElementById('search').value = ''; render(); };
   tabsEl.appendChild(b);
 });
@@ -152,6 +161,9 @@ function matchSearch(x, q){
 
 function render(){
   document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === curTab));
+  const isDLC = curTab === 'dlc';
+  document.getElementById('search').style.display = isDLC ? 'none' : '';
+  document.getElementById('filter').style.display = isDLC ? 'none' : '';
   const sel = document.getElementById('filter');
   const prev = sel.value;
   sel.innerHTML = filterOptions().map(([v,l]) => `<option value="${v}">${l}</option>`).join('');
@@ -164,6 +176,7 @@ function renderList(){
   const f = document.getElementById('filter').value;
   const main = document.getElementById('main');
   if (curTab === 'stats'){ renderStats(q); return; }
+  if (curTab === 'dlc'){ renderDLC(); return; }
   let lst = DATA[curTab];
   lst = lst.filter(x => {
     if (!matchSearch(x, q)) return false;
@@ -190,6 +203,38 @@ function renderList(){
     grid.appendChild(c);
   });
   main.innerHTML = ''; main.appendChild(grid);
+}
+
+function renderDLC(){
+  document.getElementById('main').innerHTML = `
+  <div class="dlc">
+    <div class="hero-card">
+      <h2>深海魔怪 · Abyssal Terrors</h2>
+      <div class="sub">《土豆兄弟》付费 DLC · 需拥有游戏本体</div>
+      <span class="fact">发售日期：2024年10月25日</span>
+      <span class="fact">Steam 国区：¥18</span>
+      <span class="fact">开发商：Blobfish</span>
+    </div>
+    <p>在灼热而危险的星球上与恶魔鏖战无数个夜晚之后，土豆兄弟决定前往海洋深处寻求庇护。但他很快就会发现——自己并不孤单。</p>
+    <h3>DLC 内容</h3>
+    <ul>
+      <li>全新地图「深渊」：20 波全新的敌人、精英与首领</li>
+      <li>14 个新角色</li>
+      <li>16 种新武器</li>
+      <li>30+ 个新物品</li>
+      <li>新机制：诅咒与魅惑</li>
+      <li>全新音乐曲目与新成就</li>
+    </ul>
+    <h3>新机制：诅咒</h3>
+    <p>深渊中的部分敌人、武器和物品会被「诅咒」。被诅咒的敌人更加强大，但掉落也更丰厚；被诅咒的武器与物品会按「修正系数」获得属性强化——常见属性按比例放大，稀有属性按约 1/5 比例放大，其中贯通、弹射等稀有词条在诅咒加持下提升尤为显著。武器合成时将继承两把武器中较高的修正系数。部分新角色还拥有「诅咒」属性，可以主动利用这一机制构筑流派。</p>
+    <h3>同日免费更新（1.1.0，无需 DLC）</h3>
+    <ul>
+      <li>本地合作模式：最多 4 人同屏，兼容 Steam 远程同乐</li>
+      <li>4 个新角色、5 种新武器、15 个新物品</li>
+      <li>新增「重试失败波次」选项与全新音乐曲目</li>
+    </ul>
+    <div class="note">说明：本图鉴的物品 / 角色 / 武器 / 敌人数据为游戏本体 Patch 0.8 内容，DLC 新增条目的具体数值暂未收录（官方 wiki 数据暂无法获取），本页仅作 DLC 内容概览。</div>
+  </div>`;
 }
 
 function renderStats(q){
