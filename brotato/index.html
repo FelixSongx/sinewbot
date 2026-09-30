@@ -137,7 +137,7 @@ function filterOptions(){
   if (curTab === 'characters')
     return [['all','全部'],['default','默认解锁'],['unlock','条件解锁']];
   if (curTab === 'enemies')
-    return [['all','全部'],['enemy','普通敌人'],['elite','精英'],['boss','Boss']];
+    return [['all','全部'],['enemy','普通敌人'],['elite','精英'],['boss','首领']];
   return [['all','全部']];
 }
 
@@ -183,9 +183,9 @@ function renderList(){
     let sub = '';
     if (curTab === 'items') sub = rarityBadge(x.rarity);
     if (curTab === 'weapons') sub = rarityBadge(x.rarity) + (x.types?.length ? `<div class="en">${esc(x.types.join(' / '))}</div>` : '');
-    if (curTab === 'enemies') sub = `<span class="badge gray">${{enemy:'敌人',elite:'精英',boss:'Boss'}[x.category]||x.category}</span>`;
+    if (curTab === 'enemies') sub = `<span class="badge gray">${{enemy:'敌人',elite:'精英',boss:'首领'}[x.category]||x.category}</span>`;
     if (curTab === 'characters') sub = x.defaultUnlock ? '<span class="badge gray">默认解锁</span>' : '';
-    c.innerHTML = `${iconHtml(x)}<div class="zh">${esc(x.zh || x.name)}</div><div class="en">${esc(x.name)}</div>${sub}`;
+    c.innerHTML = `${iconHtml(x)}<div class="zh">${esc(x.zh || x.name)}</div>${sub}`;
     c.onclick = () => openModal(x);
     grid.appendChild(c);
   });
@@ -199,7 +199,7 @@ function renderStats(q){
   if (!lst.length) wrap.innerHTML = '<div class="empty">没有匹配的条目</div>';
   lst.forEach(x => {
     const r = document.createElement('div'); r.className = 'statrow';
-    r.innerHTML = `${iconHtml(x)}<div><h3>${esc(x.zh || x.name)}${x.zh && x.zh !== x.name ? `<span class="en">${esc(x.name)}</span>` : ''}</h3>
+    r.innerHTML = `${iconHtml(x)}<div><h3>${esc(x.zh || x.name)}</h3>
       <p>${si(x.desc)}</p>
       <div class="meta"><b>上限：</b>${esc(x.cap)}　<b>为负值时：</b>${esc(x.neg)}</div></div>`;
     wrap.appendChild(r);
@@ -241,7 +241,7 @@ function openModal(x){
       + row('解锁条件', esc(x.unlockedby) || '默认解锁');
   } else if (curTab === 'enemies'){
     const g = (lbl, v) => v !== undefined && v !== '' ? `<div><span class="lbl">${lbl}</span><br>${si(v)}</div>` : '';
-    body = row('类型', {enemy:'普通敌人',elite:'精英（危险2+）',boss:'Boss（第20波）'}[x.category] || esc(x.category))
+    body = row('类型', {enemy:'普通敌人',elite:'精英（危险2+）',boss:'首领（第20波）'}[x.category] || esc(x.category))
       + row('行为', si(x.behavior))
       + row('数值', `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:6px;font-size:13px">
           ${g('生命值', x.health)}${g('+生命/波', x.hpPerWave)}${g('速度', x.speed)}${g('伤害', x.damage)}
@@ -249,7 +249,7 @@ function openModal(x){
           ${g('宝箱掉率', x.crateDrop)}${g('首次出现', x.firstWave)}</div>`);
   }
   m.innerHTML = `<button class="close">✕</button>
-    <div class="mhead">${iconHtml(x, true)}<div><h2>${esc(x.zh || x.name)}</h2><div class="men">${esc(x.name)}</div>
+    <div class="mhead">${iconHtml(x, true)}<div><h2>${esc(x.zh || x.name)}</h2>
     ${x.rarity ? rarityBadge(x.rarity) : ''}</div></div>${body}`;
   m.querySelector('.close').onclick = closeModal;
   overlay.classList.add('open');
